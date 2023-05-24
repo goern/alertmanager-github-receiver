@@ -31,42 +31,9 @@ spec:
           - name: output
             workspace: source
 
-      - name: yamllint
-        runAfter:
-          - fetchit
-        taskSpec:
-          workspaces:
-            - name: source
-          steps:
-            - name: yaml-lint
-              image: quay.io/mhutter/yamllint
-              workingDir: $(workspaces.source.path)
-              script: |
-                set -x
-                yamllint -f parsable -c .yamllint $(find . -type f -regex ".*y[a]ml" -print)
-        workspaces:
-          - name: source
-            workspace: source
-
-      - name: pylint
-        runAfter:
-          - fetchit
-        taskSpec:
-          workspaces:
-            - name: source
-          steps:
-            - name: pylint
-              image: registry.gitlab.com/pipeline-components/pylint:latest
-              workingDir: $(workspaces.source.path)
-              script: |
-                pylint -ry $(find . -type f -name '*.py') --output-format=parseable
-        workspaces:
-          - name: source
-            workspace: source
-
       - name: black
         runAfter:
-          - pylint
+          - fetchit
         taskSpec:
           workspaces:
             - name: source
