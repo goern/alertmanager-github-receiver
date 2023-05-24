@@ -1,15 +1,15 @@
 package issues
 
 import (
-	"testing"
+    "testing"
 
-	"github.com/m-lab/go/prometheusx/promtest"
+    "github.com/m-lab/go/prometheusx/promtest"
 )
 
 func TestMetrics(t *testing.T) {
-	rateLimit.WithLabelValues("x")
-	rateRemaining.WithLabelValues("x")
-	rateResetTime.WithLabelValues("x")
-	operationCount.WithLabelValues("x")
-	promtest.LintMetrics(t)
+    rateLimit.WithLabelValues("x")
+    rateRemaining.WithLabelValues("x")
+    rateResetTime.WithLabelValues("x")
+    operationCount.WithLabelValues("x")
+    promtest.LintMetrics(t)
 }

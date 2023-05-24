@@ -16,16 +16,16 @@
 package issues
 
 import (
-	"bytes"
-	"fmt"
-	"html/template"
-	"net/http"
+    "bytes"
+    "fmt"
+    "html/template"
+    "net/http"
 
-	"github.com/google/go-github/github"
+    "github.com/google/go-github/github"
 )
 
 const (
-	listRawHTMLTemplate = `
+    listRawHTMLTemplate = `
 <html><body>
 <h2>Open Issues</h2>
 <table>
@@ -39,38 +39,38 @@ Receiver metrics: <a href="/metrics" onclick="javascript:event.target.port=9990"
 )
 
 var (
-	listTemplate = template.Must(template.New("list").Parse(listRawHTMLTemplate))
+    listTemplate = template.Must(template.New("list").Parse(listRawHTMLTemplate))
 )
 
 // ListClient defines an interface for listing issues.
 type ListClient interface {
-	ListOpenIssues() ([]*github.Issue, error)
+    ListOpenIssues() ([]*github.Issue, error)
 }
 
 // ListHandler contains data needed for HTTP handlers.
 type ListHandler struct {
-	ListClient
+    ListClient
 }
 
 // ServeHTTP lists open issues from github for view in a browser.
 func (lh *ListHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/" || req.Method != http.MethodGet {
-		rw.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(rw, "Wrong method\n")
-		return
-	}
-	issues, err := lh.ListOpenIssues()
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(rw, "%s\n", err)
-		return
-	}
-	var buf bytes.Buffer
-	err = listTemplate.Execute(&buf, &issues)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(rw, "%s\n", err)
-		return
-	}
-	rw.Write(buf.Bytes())
+    if req.URL.Path != "/" || req.Method != http.MethodGet {
+        rw.WriteHeader(http.StatusMethodNotAllowed)
+        fmt.Fprintf(rw, "Wrong method\n")
+        return
+    }
+    issues, err := lh.ListOpenIssues()
+    if err != nil {
+        rw.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(rw, "%s\n", err)
+        return
+    }
+    var buf bytes.Buffer
+    err = listTemplate.Execute(&buf, &issues)
+    if err != nil {
+        rw.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(rw, "%s\n", err)
+        return
+    }
+    rw.Write(buf.Bytes())
 }
