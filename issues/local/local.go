@@ -17,75 +17,75 @@
 package local
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
 
-	"github.com/google/go-github/github"
+    "github.com/google/go-github/github"
 )
 
 // Client manages operations on the in memory store.
 type Client struct {
-	issues map[string]*github.Issue
+    issues map[string]*github.Issue
 }
 
 // NewClient creates a Client.
 func NewClient() *Client {
-	return &Client{
-		issues: make(map[string]*github.Issue),
-	}
+    return &Client{
+        issues: make(map[string]*github.Issue),
+    }
 }
 
 // CreateIssue adds a new issue to the in memory store.
 func (c *Client) CreateIssue(repo, title, body string, extra []string) (*github.Issue, error) {
-	c.issues[title] = &github.Issue{
-		Title: &title,
-		Body:  &body,
-	}
-	return c.issues[title], nil
+    c.issues[title] = &github.Issue{
+        Title: &title,
+        Body:  &body,
+    }
+    return c.issues[title], nil
 }
 
 // LabelIssue idempotently adds or removes a label in the in memory store.
 func (c *Client) LabelIssue(issue *github.Issue, label string, add bool) error {
-	if label == "" {
-		return nil
-	}
+    if label == "" {
+        return nil
+    }
 
-	memIssue, ok := c.issues[issue.GetTitle()]
-	if !ok {
-		return fmt.Errorf("Unknown issue: %s", issue.GetTitle())
-	}
-	found := false
-	for i, issueLabel := range memIssue.Labels {
-		if *issueLabel.Name == label {
-			found = true
-			if !add {
-				memIssue.Labels = append(memIssue.Labels[:i], memIssue.Labels[i+1:]...)
-			}
-			break
-		}
-	}
-	if add && !found {
-		newLabel := github.Label{Name: &label}
-		memIssue.Labels = append(memIssue.Labels, newLabel)
-	}
-	return nil
+    memIssue, ok := c.issues[issue.GetTitle()]
+    if !ok {
+        return fmt.Errorf("Unknown issue: %s", issue.GetTitle())
+    }
+    found := false
+    for i, issueLabel := range memIssue.Labels {
+        if *issueLabel.Name == label {
+            found = true
+            if !add {
+                memIssue.Labels = append(memIssue.Labels[:i], memIssue.Labels[i+1:]...)
+            }
+            break
+        }
+    }
+    if add && !found {
+        newLabel := github.Label{Name: &label}
+        memIssue.Labels = append(memIssue.Labels, newLabel)
+    }
+    return nil
 }
 
 // ListOpenIssues returns all issues in the memory store.
 func (c *Client) ListOpenIssues() ([]*github.Issue, error) {
-	var allIssues []*github.Issue
-	for title := range c.issues {
-		log.Println("ListOpenIssues:", title)
-		allIssues = append(allIssues, c.issues[title])
-	}
-	return allIssues, nil
+    var allIssues []*github.Issue
+    for title := range c.issues {
+        log.Println("ListOpenIssues:", title)
+        allIssues = append(allIssues, c.issues[title])
+    }
+    return allIssues, nil
 }
 
 // CloseIssue removes the issue from the in memory store.
 func (c *Client) CloseIssue(issue *github.Issue) (*github.Issue, error) {
-	if _, ok := c.issues[issue.GetTitle()]; !ok {
-		return nil, fmt.Errorf("Unknown issue:%s", issue.GetTitle())
-	}
-	delete(c.issues, issue.GetTitle())
-	return issue, nil
+    if _, ok := c.issues[issue.GetTitle()]; !ok {
+        return nil, fmt.Errorf("Unknown issue:%s", issue.GetTitle())
+    }
+    delete(c.issues, issue.GetTitle())
+    return issue, nil
 }
