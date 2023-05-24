@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   name: pre-commit
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/task: "[git-clone]"
@@ -43,6 +43,22 @@ spec:
               workingDir: $(workspaces.source.path)
               script: |
                 pre-commit run --all-files
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: black
+        runAfter:
+          - fetchit
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: black
+              image: registry.gitlab.com/pipeline-components/black:latest
+              workingDir: $(workspaces.source.path)
+              script: |
+                black --check --verbose -- .
         workspaces:
           - name: source
             workspace: source

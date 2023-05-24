@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: linters
+  name: markdownlint
   annotations:
     pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
@@ -29,22 +29,6 @@ spec:
           name: git-clone
         workspaces:
           - name: output
-            workspace: source
-
-      - name: black
-        runAfter:
-          - fetchit
-        taskSpec:
-          workspaces:
-            - name: source
-          steps:
-            - name: black
-              image: registry.gitlab.com/pipeline-components/black:latest
-              workingDir: $(workspaces.source.path)
-              script: |
-                black --check --verbose -- .
-        workspaces:
-          - name: source
             workspace: source
 
       - name: markdownlint
